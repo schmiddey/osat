@@ -1,0 +1,11 @@
+{
+  "workbench.colorCustomizations": {
+    "editorCursor.foreground": "#ff7b008f",
+    "activityBar.background": "#312E0C",
+    "titleBar.activeBackground": "#454111",
+    "titleBar.activeForeground": "#FCFBF1"
+  },
+  "files.associations": {
+    "iostream": "cpp"
+  }
+}

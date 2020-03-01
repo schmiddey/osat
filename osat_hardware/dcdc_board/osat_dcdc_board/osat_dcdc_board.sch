@@ -1,0 +1,118 @@
+EESchema Schematic File Version 4
+EELAYER 30 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 1
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L 00_dcdc_MP1584:dcdc_MP1584 U1
+U 1 1 5E53C1E6
+P 6000 3850
+F 0 "U1" H 6025 4365 50  0000 C CNN
+F 1 "dcdc_MP1584" H 6025 4274 50  0000 C CNN
+F 2 "00_dcdc_MP1584:MP1584EN_dcdc" H 5650 3450 50  0001 C CNN
+F 3 "" H 5650 3450 50  0001 C CNN
+	1    6000 3850
+	1    0    0    -1  
+$EndComp
+$Comp
+L Connector_Generic:Conn_01x02 J1
+U 1 1 5E53C649
+P 4950 3850
+F 0 "J1" H 4868 3525 50  0000 C CNN
+F 1 "Conn_01x02" H 4868 3616 50  0000 C CNN
+F 2 "Connector_JST:JST_EH_B2B-EH-A_1x02_P2.50mm_Vertical" H 4950 3850 50  0001 C CNN
+F 3 "~" H 4950 3850 50  0001 C CNN
+	1    4950 3850
+	-1   0    0    1   
+$EndComp
+$Comp
+L Connector_Generic:Conn_01x02 J2
+U 1 1 5E53C7E5
+P 7200 3850
+F 0 "J2" H 7118 3525 50  0000 C CNN
+F 1 "Conn_01x02" H 7118 3616 50  0000 C CNN
+F 2 "Connector_JST:JST_EH_B2B-EH-A_1x02_P2.50mm_Vertical" H 7200 3850 50  0001 C CNN
+F 3 "~" H 7200 3850 50  0001 C CNN
+	1    7200 3850
+	1    0    0    1   
+$EndComp
+Wire Wire Line
+	5150 3750 5350 3750
+Wire Wire Line
+	5350 3750 5350 3600
+Wire Wire Line
+	5350 3600 5450 3600
+Wire Wire Line
+	5500 3700 5450 3700
+Wire Wire Line
+	5450 3700 5450 3600
+Connection ~ 5450 3600
+Wire Wire Line
+	5450 3600 5500 3600
+Wire Wire Line
+	5150 3850 5350 3850
+Wire Wire Line
+	5350 3850 5350 4050
+Wire Wire Line
+	5350 4050 5450 4050
+Wire Wire Line
+	5500 3950 5450 3950
+Wire Wire Line
+	5450 3950 5450 4050
+Connection ~ 5450 4050
+Wire Wire Line
+	5450 4050 5500 4050
+Wire Wire Line
+	6550 3600 6600 3600
+Wire Wire Line
+	6550 4050 6600 4050
+Wire Wire Line
+	6550 3700 6600 3700
+Wire Wire Line
+	6600 3700 6600 3600
+Wire Wire Line
+	6550 3950 6600 3950
+Wire Wire Line
+	6600 3950 6600 4050
+$Comp
+L Device:CP C1
+U 1 1 5E53FB9E
+P 6750 3800
+F 0 "C1" H 6868 3846 50  0000 L CNN
+F 1 "CP" H 6868 3755 50  0000 L CNN
+F 2 "Capacitor_THT:CP_Radial_D8.0mm_P5.00mm" H 6788 3650 50  0001 C CNN
+F 3 "~" H 6750 3800 50  0001 C CNN
+	1    6750 3800
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6600 4050 6750 4050
+Wire Wire Line
+	7000 4050 7000 3850
+Connection ~ 6600 4050
+Wire Wire Line
+	7000 3600 7000 3750
+Connection ~ 6600 3600
+Wire Wire Line
+	6600 3600 6750 3600
+Wire Wire Line
+	6750 3650 6750 3600
+Connection ~ 6750 3600
+Wire Wire Line
+	6750 3600 7000 3600
+Wire Wire Line
+	6750 3950 6750 4050
+Connection ~ 6750 4050
+Wire Wire Line
+	6750 4050 7000 4050
+$EndSCHEMATC
