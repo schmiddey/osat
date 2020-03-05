@@ -2,7 +2,7 @@ x_length = 90;
 y_length = 90;
 z_length = 30;
 
-wall_thickness = 3;
+wall_thickness = 2;
 
 battery_x_length = 53;
 battery_y_length = 17;
@@ -22,6 +22,9 @@ piezo_height_step    = 0.2;
 piezo_diameter       = 27;
 piezo_diameter_inner = 20;
 
+led_mount_width      = 12.5;
+led_mount_height     = 5;
+led_cable_duct_width = 4;
 
 //param solder mount
 x_lenth_solder_mount = 12;
