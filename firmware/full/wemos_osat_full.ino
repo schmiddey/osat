@@ -152,7 +152,7 @@ class Led{
 public:
   Led()
   {
-     _pixel = Adafruit_NeoPixel(1, D2, NEO_GRB + NEO_KHZ800);
+     _pixel = Adafruit_NeoPixel(1, D4, NEO_GRB + NEO_KHZ800);
 
      _colors[OFF]     = Color(0,0,0);
      _colors[RED]     = Color(255,0,0);
@@ -234,6 +234,7 @@ Led g_led;
  * "CFG-THRESH-xxx"   -> Sets hit-threshold for this Module
  * "CFG-TIMEOUT-xxx"  -> Sets timeout in [ms] for ACTIVE_TO mode
  * 
+ * @todo add cmd for sending config!!
  * 
  */
 class OsatComm{
@@ -362,7 +363,7 @@ public:
   bool checkHit()
   {
     int piezo = analogRead(A0);
-    delay(3);  //very important here -> if not there wifi will disconnect ... sadly :(
+    delay(5);  //very important here -> if not there wifi will disconnect ... sadly :(
   
     if(piezo > _osat_config.hit_thresh)
     {
@@ -389,32 +390,31 @@ private: //functions
       msg_contend.remove(msg_contend.length() -1);
     }
 
+    bool cmd_ok = false;
+    bool cfg_ok = false;
+
     //decide if cmd or cfg... 
     if(msg_type == String("CMD"))
     {
       if(msg_contend == String("ACTIVE"))
       {
         this->setState(ACTIVE);
-        this->transmit(msg);  //sending ack
-        return;
+        cmd_ok = true;
       }
       else if(msg_contend == String("ACTIVE_TO"))
       {
         this->setState(ACTIVE_TO);
-        this->transmit(msg);
-        return;
+        cmd_ok = true;
       }
       else if(msg_contend == String("INACTIVE"))
       {
         this->setState(INACTIVE);
-        this->transmit(msg); //sending ack
-        return;
+        cmd_ok = true;
       }
       else if(msg_contend == String("FLASH"))
       {
         this->setState(FLASH);
-        this->transmit(msg); //sending ack
-        return;
+        cmd_ok = true;
       }
       //invalid
     }
@@ -431,8 +431,7 @@ private: //functions
         {  
           _osat_config.id = static_cast<uint8_t>(tmp_id);
           write_osat_config(_osat_config);
-          this->transmit(msg);  //sending ack
-          return;
+          cfg_ok = true;
         }
       }
       else if(msg_contend.substring(0,6) == String("THRESH"))
@@ -442,8 +441,7 @@ private: //functions
         {  
           _osat_config.hit_thresh = tmp_thresh;
           write_osat_config(_osat_config);
-          this->transmit(msg); //sending ack
-          return;
+          cfg_ok = true;
         }
       }
       else if(msg_contend.substring(0,7) == String("TIMEOUT"))
@@ -453,15 +451,27 @@ private: //functions
         {  
           _osat_config.timeout_ms = tmp_timeout;
           write_osat_config(_osat_config);
-          this->transmit(msg);  //sending ack
-          return;
+          cfg_ok = true;
         }
       }
     }
 
-    //invalid command
-    this->transmit("Got invalid Command ...");
-
+    if(cmd_ok)
+    {
+      //send ack
+      this->transmit(msg);
+    }
+    else if(cfg_ok)
+    {
+      //send ack
+      this->transmit(msg);
+      //send new config
+      this->transmit(_osat_config.toString());
+    }
+    else  //invalid command
+    {
+      this->transmit("Got invalid Command ...");
+    }
     //For ack  
     // this->transmit(data);
   }
@@ -502,13 +512,6 @@ OsatComm g_osat_com(g_wifiserver);
 
 void setup() 
 {
-  Serial.begin(9600);
-
-  for(unsigned int i = 0; i < 100; i++)
-  {
-    Serial.println("hans");
-  }
-
   // bool ret_check_cfg = check_osat_config();
 
   // g_osat_config = read_osat_config();
@@ -650,6 +653,8 @@ void loop()
         delay(10);
         g_led.setColor(Led::OFF);
         // delay(50);
+        //send config
+        g_osat_com.transmit(g_osat_com.getConfig().toString());
       }
       delay(10);
       break;
