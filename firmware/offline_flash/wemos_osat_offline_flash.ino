@@ -160,7 +160,6 @@ public:
      _colors[GREEN]   = Color(0,255,0);
      _colors[BLUE]    = Color(0,0,255);
      _colors[VIOLETT] = Color(255,0,255);
-     _colors[WHITE]  = Color(255,255,255);
   }
   ~Led()
   {}
@@ -172,7 +171,6 @@ public:
     GREEN,
     BLUE,
     VIOLETT,
-    WHITE,
     SIZE
   };
 
@@ -183,35 +181,19 @@ public:
     this->setColor(OFF);
   }
 
-  /**
-   * @brief Set the Color object
-   * 
-   * @todo add intensity ...
-   * 
-   * @param color 
-   * @param intensity 
-   */
-  void setColor(const ColorEnum color, const double intensity = 1.0)
+  void setColor(const ColorEnum color, const unsigned int intensity = 100u)
   {
     _current_color = color;
-    
-    double tmp_intens = intensity;
-    constrain(tmp_intens, 0.0, 1.0);
-
     _current_intens = intensity;
-
-    Color c = _colors[color];
-
-    c.r = round(static_cast<double>(c.r) * tmp_intens);
-    c.g = round(static_cast<double>(c.g) * tmp_intens);
-    c.b = round(static_cast<double>(c.b) * tmp_intens);
-
-    _pixel.setPixelColor(0, _pixel.Color(c.r, c.g, c.b));
-    _pixel.show();
-
+    // for(unsigned int i = 0; i < 5; i++)
+    // {
+      _pixel.setPixelColor(0, _pixel.Color(_colors[color].r, _colors[color].g, _colors[color].b));
+      _pixel.show();
+      // delay(10);
+    // }
   }
 
-  void blink(const ColorEnum color, unsigned long delay_ms = 2, const double intensity = 1.0)
+  void blink(const ColorEnum color, unsigned long delay_ms = 2, const unsigned int intensity = 100u)
   {
     this->setColor(color, intensity);
     delay(delay_ms); //todo check perfect time :D
@@ -227,7 +209,7 @@ private:
   Adafruit_NeoPixel _pixel;
 
   ColorEnum    _current_color  = Led::OFF;
-  double       _current_intens = 1.0;
+  unsigned int _current_intens = 100u;
 
   Color _colors[SIZE];
 };
@@ -251,7 +233,6 @@ Led g_led;
  * "CFG-ID-xxx"       -> Sets ID of this Module (1..255) 255 default
  * "CFG-THRESH-xxx"   -> Sets hit-threshold for this Module
  * "CFG-TIMEOUT-xxx"  -> Sets timeout in [ms] for ACTIVE_TO mode
- * "CFG-REQUEST"      -> Sends current cfg
  * 
  * @todo add cmd for sending config!!
  * 
@@ -473,11 +454,6 @@ private: //functions
           cfg_ok = true;
         }
       }
-      else if(msg_contend.substring(0,8) == String("REQUEST"))
-      {
-        //only request cfg
-        cfg_ok = true;
-      }
     }
 
     if(cmd_ok)
@@ -511,7 +487,7 @@ private:
 
   char _buffer[50];
 
-  State _state = IDLE;
+  State _state = FLASH;
 
   OsatConfig _osat_config;
 };
@@ -540,29 +516,29 @@ void setup()
 
   // g_osat_config = read_osat_config();
 
-  WiFi.begin(ssid, pass);
+  // WiFi.begin(ssid, pass);
 
   g_led.init();
 
   g_led.setColor(Led::RED);
 
 
-  while (WiFi.status() != WL_CONNECTED) {
-    g_led.setColor(Led::BLUE);
-    delay(250);
-    g_led.setColor(Led::OFF);
-    delay(250);
-  }
+  // while (WiFi.status() != WL_CONNECTED) {
+  //   g_led.setColor(Led::BLUE);
+  //   delay(250);
+  //   g_led.setColor(Led::OFF);
+  //   delay(250);
+  // }
 
-  g_wifiserver.begin();
-  g_wifiserver.setNoDelay(true);
+  // g_wifiserver.begin();
+  // g_wifiserver.setNoDelay(true);
 
   // WiFi.setAutoReconnect(true);
   g_led.setColor(Led::GREEN);
   delay(1000);
 
   //osat com
-  g_osat_com.connect();
+  // g_osat_com.connect();
 
   g_led.setColor(Led::VIOLETT);
   delay(1000);
@@ -653,8 +629,8 @@ void loop()
     {
       if(old_state != OsatComm::FLASH)
       {
-        //led WHITE
-        g_led.setColor(Led::WHITE, 0.1);
+        //led off
+        g_led.setColor(Led::OFF);
       }
 
       old_state = OsatComm::FLASH;
@@ -662,12 +638,10 @@ void loop()
       
       if(g_osat_com.checkHit())
       {
-        g_osat_com.sendHit();
+        // g_osat_com.sendHit();
         g_led.setColor(Led::GREEN);
-        delay(50);
+        delay(25);
         g_led.setColor(Led::OFF);
-        delay(100);
-        g_led.setColor(Led::WHITE, 0.1);
       }
       break;
     }
