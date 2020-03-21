@@ -1,0 +1,15 @@
+{
+  "activate_count": 1,
+  "ids": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "interval_ms": 1500,
+  "interval_reduce_step_ms": 0,
+  "max_timeout_count": 1,
+  "mode_name": "rf",
+  "mode_type": "random_fill",
+  "timout_ms": 1000
+}

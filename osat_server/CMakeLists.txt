@@ -29,11 +29,15 @@ link_directories(${Boost_LIBRARY_DIR})
 #grab files
 file(GLOB src_server "src/*.cpp")
 
-file(GLOB src_boost "src/boost/*.cpp")
-
 
 #add executable
-#udp boost class test/tool
+# osat_server_terminal
+add_executable(osat_server_terminal src/tools/osat_server_terminal.cpp
+                                    ${src_server})
+add_executable(osat_set_id_tool src/tools/osat_set_id_tool.cpp
+                                ${src_server})
+
+# test executables
 add_executable(test_udp_rcv   test/test_udp_rcv.cpp)
 add_executable(test_udp_send  test/test_udp_send.cpp)
 #tcp boost examples (no class)
@@ -44,7 +48,10 @@ add_executable(test_tcp_srv test/test_tcp_srv.cpp)
 add_executable(test_tcp_cl  test/test_tcp_cl.cpp)
 
 
-
+# osat_server_terminal
+target_link_libraries(osat_server_terminal ${Boost_LIBRARIES})
+target_link_libraries(osat_set_id_tool   ${Boost_LIBRARIES})
+# test executables
 target_link_libraries(test_udp_rcv  ${Boost_LIBRARIES})
 target_link_libraries(test_udp_send ${Boost_LIBRARIES})
 
@@ -53,6 +60,7 @@ target_link_libraries(test_tcp_cl_basic   ${Boost_LIBRARIES})
 
 target_link_libraries(test_tcp_srv  ${Boost_LIBRARIES})
 target_link_libraries(test_tcp_cl   ${Boost_LIBRARIES})
+
 
 #link executable
 # target_link_libraries(template ${Boost_LIBRARIES}

@@ -14,11 +14,11 @@ struct OsatConfig{
 
   String toString() const
   {
-    String str("OsatConfig: id: ");
+    String str("OsatConfig #id:");
     str += String(id);
-    str += String(", hit_thresh: ");
+    str += String(" #hit_thresh:");
     str += String(hit_thresh);
-    str += String(", timeout_ms: ");
+    str += String(" #timeout_ms:");
     str += String(timeout_ms);
     return str;
   }
@@ -276,17 +276,11 @@ public:
   void connect()
   {
     delay(100);
-    this->transmit("init... check Config...");
+    // this->transmit("init... check Config...");
 
     //handle EEPPROM Config
-    if(check_osat_config())
-    {
-      this->transmit("Config OK");
-    }
-    else
-    {
-      this->transmit("Config broken... will init it");
-    }
+    check_osat_config();
+
     _osat_config = read_osat_config();
     this->transmit(_osat_config.toString());
 
@@ -327,11 +321,6 @@ public:
     this->transmit("hit\n");
   }
 
-  void sendHeartbeat()
-  {
-    this->transmit("tick\n");
-  }
-
   void sendTimeout()
   {
     this->transmit("timeout");
@@ -340,6 +329,7 @@ public:
   void transmit(const String& str) const
   {
     String sendstr(str); //copy
+    sendstr = String(_osat_config.id) + String("|") + sendstr;
     //fix endline
     if(!sendstr.endsWith("\n"))
     {
@@ -382,7 +372,7 @@ public:
   bool checkHit()
   {
     int piezo = analogRead(A0);
-    delay(5);  //very important here -> if not there wifi will disconnect ... sadly :(
+    delay(9);  //very important here -> if not there wifi will disconnect ... sadly :(
   
     if(piezo > _osat_config.hit_thresh)
     {
@@ -483,12 +473,12 @@ private: //functions
     if(cmd_ok)
     {
       //send ack
-      this->transmit(msg);
+      // this->transmit(msg);
     }
     else if(cfg_ok)
     {
       //send ack
-      this->transmit(msg);
+      // this->transmit(msg);
       //send new config
       this->transmit(_osat_config.toString());
     }
@@ -546,13 +536,13 @@ void setup()
 
   g_led.setColor(Led::RED);
 
-
   while (WiFi.status() != WL_CONNECTED) {
     g_led.setColor(Led::BLUE);
     delay(250);
     g_led.setColor(Led::OFF);
     delay(250);
   }
+
 
   g_wifiserver.begin();
   g_wifiserver.setNoDelay(true);
@@ -681,6 +671,10 @@ void loop()
         // delay(50);
         //send config
         g_osat_com.transmit(g_osat_com.getConfig().toString());
+        delay(10);
+        g_osat_com.transmit(String(WiFi.RSSI()));
+        
+
       }
       delay(10);
       break;

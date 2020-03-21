@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "../src/boost/Tcp.h"
+#include "../src/ip/Tcp.h"
 
 osat::server::TcpServer server(1337, 100);
 

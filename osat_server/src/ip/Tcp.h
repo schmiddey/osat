@@ -1,3 +1,9 @@
+#ifndef TCP_H_
+#define TCP_H_
+
+
+
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -12,22 +18,13 @@
 #include <stdexcept>
 
 #include <boost/asio.hpp>
+#include <boost/bind.hpp>
 
+#include "../Utility.h"
 
 namespace osat{
 
-class Helper
-{
-public:
-  static std::string check_eol(const std::string& data)
-  {
-    if(data.back() != '\n')
-    {
-      return data + '\n';
-    }
-    return data;
-  }
-};
+
 
 namespace server{
 
@@ -215,7 +212,8 @@ public:
       auto e = _data_in_queue.front(); //cpy+
       _data_in_queue.pop();
       _mtx_data_in_queue.unlock();
-      _read_callback_str(e.first, e.second);
+      std::string data_cp = e.second;
+      _read_callback_str(e.first, data_cp);
     }
 
     //handle stoped clients
@@ -265,11 +263,13 @@ public:
    * 
    * @todo handle write error ...
    */
-  void write_to(const ClientEndpoint& cl, const std::string& data) const
+  void write_to(const ClientEndpoint& cl, const std::string& data)
   {
     try
     {
-      boost::asio::write(_clients.at(cl)->socket, boost::asio::buffer(Helper::check_eol(data)));
+      _mtx_cl.lock();
+      boost::asio::write(_clients.at(cl)->socket, boost::asio::buffer(Utility::check_eol(data)));
+      _mtx_cl.unlock();
     }
     catch(const std::out_of_range& e)
     {
@@ -367,6 +367,18 @@ namespace client{
 
 class TcpClient{
 public:
+
+  //static fuction for only sending one message (connect send close...)
+  static bool writeOnce(const std::string& ip, const uint32_t port, const std::string& msg)
+  {
+    TcpClient cl(ip, port);
+    if(!cl.connect())
+    {
+      return false;
+    }
+    return cl.write(msg);
+  }
+
   TcpClient(const std::string& ip, const uint32_t port, const bool auto_repair = false) :
     _socket(_io_service),
     _ip(ip),
@@ -379,9 +391,19 @@ public:
   ~TcpClient()
   { }
 
-  void connect()
+  bool connect()
   {
-    _socket.connect(boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string(_ip), _port));
+    try
+    {
+      // _socket.non_blocking(true);
+      _socket.connect(boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string(_ip), _port));
+      return true;
+    }
+    catch(const boost::system::system_error& e)
+    {
+      return false;
+    }
+    
   }
 
   /**
@@ -394,7 +416,7 @@ public:
   bool write(const std::string& data)
   {
     boost::system::error_code error;
-    boost::asio::write(_socket, boost::asio::buffer(Helper::check_eol(data)), error);
+    boost::asio::write(_socket, boost::asio::buffer(Utility::check_eol(data)), error);
     if(!error)
     {
       return true;
@@ -411,6 +433,7 @@ public:
     _read_cb = read_cb;
   }
 
+  //only needed if receiving is needed
   void start()
   {
     _thrd = std::thread(&TcpClient::thrd_read, this);
@@ -425,6 +448,7 @@ public:
     _run = false;
   }
 
+  //only needed if receiving is needed
   void spinOnce()
   {
     while(true)
@@ -441,6 +465,7 @@ public:
     }
   }
 
+  //only needed if receiving is needed
   void spin()
   {
     while(_run.load())
@@ -508,6 +533,81 @@ private:
 };
 
 
+// class TcpTryClient{
+// public:
+
+//   static void try_write_to(const std::string& ip, const uint32_t port, const std::string& msg, const uint32_t timeout_us = 100000)
+//   {
+//     TcpTryClient cl(ip, port, msg);
+//     cl.start(timeout_us);
+//     // std::cout << "wait rdy" << std::endl;
+//     // ::usleep(timeout_us * 1.5);
+//   }
+
+//   ~TcpTryClient()
+//   { }  
+// private:
+//   TcpTryClient(const std::string& ip, const uint32_t port, const std::string& msg) :
+//     _socket(_io_service),
+//     _deadline(_io_service),
+//     _ip(ip),
+//     _port(port),
+//     _msg(msg)
+//   { }
+
+//   void start(const uint32_t timeout_us)
+//   {
+//     _deadline.expires_from_now(boost::posix_time::microseconds(timeout_us));
+
+//     _socket.async_connect(boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string(_ip), _port),
+//                           boost::bind(&TcpTryClient::handle_connect, this, boost::placeholders::_1));
+
+//     _deadline.async_wait(boost::bind(&TcpTryClient::check_deadline, this));
+//     _io_service.run();
+//   }
+
+//   void handle_connect(const boost::system::error_code& ec)
+//   {
+//     if(!_socket.is_open())
+//     {
+//       //socket not open
+//     }
+//     else if(ec)
+//     {
+//       //error at connecting
+//       _socket.close();
+//     }
+//     else
+//     {
+//       //connected send msg;
+//       boost::asio::write(_socket, boost::asio::buffer(Utility::check_eol(_msg)));
+//       _socket.close();
+//       _io_service.stop();
+//     }
+//   }
+
+//   void check_deadline()
+//   {
+//     if (_deadline.expires_at() <= boost::asio::deadline_timer::traits_type::now())
+//     {
+//       _socket.close();
+
+//       _deadline.expires_at(boost::posix_time::pos_infin);
+//     }
+
+//     _deadline.async_wait(boost::bind(&TcpTryClient::check_deadline, this));
+//   }
+
+// private:
+//   boost::asio::io_service     _io_service;
+//   boost::asio::ip::tcp::socket _socket;
+//   boost::asio::deadline_timer _deadline;
+
+//   std::string _ip;
+//   uint32_t    _port;
+//   std::string _msg;
+// };
+
 
 
 
@@ -515,3 +615,6 @@ private:
 
 
 } //namespace osat
+
+
+#endif  //TCP_H_

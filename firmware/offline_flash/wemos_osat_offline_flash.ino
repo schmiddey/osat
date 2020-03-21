@@ -546,6 +546,8 @@ void setup()
 
 int cnt = 0;
 
+int tmp_cnt = 0;
+
 OsatComm::State old_state = OsatComm::IDLE;
 
 uint32_t timeout = 0;

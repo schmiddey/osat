@@ -31,9 +31,9 @@ union()
 
     //hole for usb conn to wemos
     translate([18,y_length, 19 + wall_thickness]){
-      translate([-1.5, 0, 0]) rotate([90,0,0]) #cylinder(d=7, h=z_length, center=true);
-      translate([1.5, 0, 0]) rotate([90,0,0]) #cylinder(d=7, h=z_length, center=true);
-      rotate([0,90,0]) #cube([7, z_length, 3], center = true);
+      translate([-1.5, 0, 0]) rotate([90,0,0]) #cylinder(d=9, h=z_length, center=true);
+      translate([1.5, 0, 0]) rotate([90,0,0]) #cylinder(d=9, h=z_length, center=true);
+      rotate([0,90,0]) #cube([9, z_length, 3], center = true);
     }
 
   }
