@@ -78,7 +78,7 @@ int main(int argc, char const *argv[])
 
   std::thread thd(thread_write);
 
-  osat_manager.start();
+  osat_manager.start(false);
   
   while(1)
   {

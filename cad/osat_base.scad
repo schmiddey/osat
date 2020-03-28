@@ -27,7 +27,7 @@ union()
     #translate([x_length - glass_mount_hole_x_dist, glass_mount_hole_y_dist, 0]) cylinder(d=glass_mount_hole_diameter, h=z_length * 2.5, center=true);
 
     //hole for battery connector
-    translate([x_length/2, wall_thickness + piezo_mount_width + 20, wall_thickness]) #cylinder(d=8, h=z_length * 2.5, center=true);
+    translate([x_length/2, wall_thickness + piezo_mount_width + 20, wall_thickness]) #cylinder(d=8.5, h=z_length * 2.5, center=true);
 
     //hole for usb conn to wemos
     translate([18,y_length, 19 + wall_thickness]){

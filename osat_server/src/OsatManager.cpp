@@ -16,13 +16,16 @@ OsatManager::OsatManager() :
 OsatManager::~OsatManager()
 { }
 
-void OsatManager::start()
+void OsatManager::start(const bool scan_for_clients)
 {
   std::cout << "start tcp" << std::endl;
   _tcp_server.start();
-  std::cout << "find clients: " << std::endl;
-  // Duration d(1.0);
-  this->findClients();
+  if(scan_for_clients)
+  {
+    std::cout << "find clients: " << std::endl;
+    // Duration d(1.0);
+    this->findClients();
+  }
 }
 
 void OsatManager::stop()
@@ -112,6 +115,18 @@ void OsatManager::setOsatTimeout(const uint8_t id, const uint32_t timeout_ms)
   for(auto& e : _clients.at(id))
   {
     OsatCommand::write_to(e.first, OsatCommand::create_cfg_timeout_cmd(timeout_ms));
+  }
+}
+
+
+void OsatManager::setOsatThreshAll(const uint32_t thresh)
+{
+  for(auto& e : _clients.get_container())
+  {
+    for(auto& f : e.second)
+    {
+      OsatCommand::write_to(f.first, OsatCommand::create_cfg_thresh_cmd(thresh));
+    }
   }
 }
 

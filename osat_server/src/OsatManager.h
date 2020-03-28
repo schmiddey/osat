@@ -118,7 +118,7 @@ public:
   OsatManager();
   ~OsatManager();
   
-  void start();
+  void start(const bool scan_for_clients = true);
 
   void stop();
 
@@ -137,6 +137,8 @@ public:
   void setOsatState(const uint8_t id, const state::OsatState);
 
   void setOsatTimeout(const uint8_t id, const uint32_t timeout_ms);
+
+  void setOsatThreshAll(const uint32_t thresh);
 
   void setConfig(const uint8_t id, const OsatConfig& cfg);
 

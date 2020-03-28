@@ -66,6 +66,22 @@ void tcp_read_cb(const osat::server::ClientEndpoint& cl, const std::string& data
       g_srv.write_to(cl, "unable to write config to: " + remain);
     }
   }
+  else if(cmd == "thresh")
+  {
+    uint32_t thresh = 0;
+    try
+    {
+      thresh = std::stoi(remain);
+    }
+    catch(const std::exception& e)
+    {
+      g_srv.write_to(cl, "Invalid argument can not convert to int: " + std::string(e.what()));
+      return;
+    }
+    
+    g_osat_manager.setOsatThreshAll(thresh);
+    g_srv.write_to(cl, "written new thresh to all osats...");
+  }
   else if(cmd == "show")
   {
     g_srv.write_to(cl, "ClientList: ");
@@ -97,7 +113,9 @@ void tcp_read_cb(const osat::server::ClientEndpoint& cl, const std::string& data
     g_srv.write_to(cl, "start <mode_namme> //starts Mode by mode name -> defined in config");
     g_srv.write_to(cl, "stop <mode_name> //stops mode by mode name -> defined in config");
     g_srv.write_to(cl, "create_mode_cfg <path/to/cfg.json> //creates a default config file at given name");
+    g_srv.write_to(cl, "thresh <value> //sets thresh to all osats by given value");
     g_srv.write_to(cl, "show // display all connected osat...");
+    g_srv.write_to(cl, "mode // display all currently available modes");
     g_srv.write_to(cl, "<somthing else> -> will show this");
   }
   
